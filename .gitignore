@@ -1,0 +1,13 @@
+# Credential — không bao giờ commit
+connect-key/
+
+# Quy tắc / tài liệu nội bộ, chỉ dùng trên máy cá nhân
+CLAUDE.local.md
+README.internal.md
+
+# File sinh ra khi chạy skill (có thể chứa dữ liệu/URL thật)
+test-case-api/
+outputs/*.json
+*-environment.json
+
+node_modules/

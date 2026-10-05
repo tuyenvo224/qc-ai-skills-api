@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: Shop API   # comment after value
+  version: "1.2"
+  description: |
+    Multi-line
+    description: with colon
+servers:
+  - url: http://localhost:4010/api/v1
+    description: local
+paths:
+  /products:
+    get:
+      tags: [Products]
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+    post:
+      security:
+        - apiKey: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                image: { type: string, format: binary }
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        '400':
+          $ref: '#/components/responses/Error'
+  /products/{id}:
+    delete:
+      responses:
+        '204': { description: No content }
+        default:
+          description: error
+  /login:
+    post:
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema: { type: object }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [form]
+                properties:
+                  form: { type: object, additionalProperties: { type: string } }
+        '401':
+          $ref: '#/components/responses/Error'
+  /secure:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user: { type: string }
+        '401':
+          $ref: '#/components/responses/Error'
+  /xml:
+    post:
+      responses:
+        '200':
+          description: echo
+          content:
+            application/json:
+              schema: { type: object }
+  /echo-path/{value}:
+    get:
+      responses:
+        '200':
+          description: echo
+          content:
+            application/json:
+              schema: { type: object, required: [path], properties: { path: { type: string } } }
+components:
+  securitySchemes:
+    apiKey: { type: apiKey, in: header, name: X-API-Key }
+  responses:
+    Error:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error: { type: string }
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id: { type: integer, format: int64 }
+        name:
+          type: string
+          example: 'O''Brien: "quoted"'
+        price: { type: number, minimum: 0, exclusiveMinimum: true }
+        tag: { type: string, nullable: true, enum: [new, sale] }
+        secret: { type: string, writeOnly: true }
+        parent:
+          $ref: '#/components/schemas/Product'
